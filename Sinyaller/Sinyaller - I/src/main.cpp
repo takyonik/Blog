@@ -44,7 +44,7 @@ int main()
     {
         cout << "Hata! SIGINT için bir yakalayıcı belirleyemedik\nVarsayılan sinyal yakalama davranışı gerçekleşecek\n";
     }
-    cout << "Sinyal yakalayici ayarlandı\n";
+    else cout << "Sinyal yakalayici ayarlandı\n";
     while(true)
     {
         sleep(1);
