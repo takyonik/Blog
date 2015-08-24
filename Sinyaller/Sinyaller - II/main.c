@@ -1,10 +1,10 @@
 /*
-   Sinyaller - I : Temel Sinyal Yakalama
+   Sinyaller - II : Daha Gelişmiş Seçenekler
 
 
 Telif Hakkı (c) 2013-2015 Takyon Mühendislik
 
- Hiçbir ücret talep edilmeden burada işbu yazılımın bir kopyasını ve belgelendirme dosyalarını (“Yazılım”) 
+ Hiçbir ücret talep edilmeden burada işbu yazılımın bir kopyasını ve belgelendirme dosyalarını (“Yazılım”)
 elde eden herkese verilen izin; kullanma, kopyalama, değiştirme, birleştirme, yayımlama, dağıtma, alt lisanslama,
 ve/veya yazılımın kopyalarını satma eylemleri de dahil olmak üzere ve bununla kısıtlama olmaksızın, yazılımın 
 sınırlama olmadan ticaretini yapmak için verilmiş olup, bunları yapmaları için yazılımın sağlandığı kişilere 
@@ -20,31 +20,51 @@ YÜKÜMLÜLÜKLERE KARŞI, YAZILIMLA VEYA KULLANIMLA VEYA YAZILIMIN BAŞKA BAĞL
 VE BUNLARIN SONUCU BİR SÖZLEŞME DAVASI, HAKSIZ FİİL VEYA DİĞER EYLEMLERDEN SORUMLU DEĞİLDİR.
 */
 
-#include <iostream>
+#include <stdio.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
-using namespace std;
+struct sigaction act;
 
-void SinyalYakalandiginda(int sinyalKodu)
+void GelismisYakalayici(int sinyalNo, siginfo_t *bilgi, void *ptr)
 {
-    if(sinyalKodu == SIGINT)
-    {
-        cout << "SIGINT sinyali yakalandı!\n";
-    }
+    printf("%s(%d) sinyalini yakaladık.\n", strsignal(sinyalNo), sinyalNo);
+    printf("Sinyali gönderen process'in PID'i: %ld\n", (long)bilgi->si_pid);
 }
 
 int main()
-{    
-    cout << "SIGINT sinyali kaydediliyor\n";
-    if(signal(SIGINT, &SinyalYakalandiginda) == SIG_ERR)
+{
+    memset(&act, 0, sizeof(act));
+    act.sa_sigaction = GelismisYakalayici;
+    act.sa_flags = SA_SIGINFO;
+
+    int yakalanacakSinyal = SIGINT;
+
+    if(sigaction(yakalanacakSinyal, &act, NULL) == -1)
     {
-        cout << "Hata! SIGINT için bir yakalayıcı belirleyemedik\nVarsayılan sinyal yakalama davranışı gerçekleşecek\n";
+        int hata = errno;
+        if(hata == EFAULT)
+        {
+            perror("Hata: Belirtilen sigaction adresi geçersiz\n");
+        }
+        else if(hata == EINVAL)
+        {
+            perror("Hata: Yakalanmaya çalışılan sinyal geçersiz(SIGKILL ve SIGSTOP da geçersiz) \n");
+        }
+        // varsa yapılacak temizlik
+
+        exit(EXIT_FAILURE);
     }
-    else cout << "Sinyal yakalayici ayarlandı\n";
-    while(true)
+
+    printf("%s(%d) sinyali başarıyla kaydedildi\n", strsignal(yakalanacakSinyal), yakalanacakSinyal);
+    while(1)
     {
         sleep(1);
     }
+
     return 0;
 }
+
