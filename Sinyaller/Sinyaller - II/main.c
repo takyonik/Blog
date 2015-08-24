@@ -31,8 +31,7 @@ struct sigaction act;
 
 void GelismisYakalayici(int sinyalNo, siginfo_t *bilgi, void *ptr)
 {
-    printf("%s(%d) sinyalini yakaladık.\n", strsignal(sinyalNo), sinyalNo);
-    printf("Sinyali gönderen process'in PID'i: %ld\n", (long)bilgi->si_pid);
+    printf("%s(%d) sinyalini yakaladık.\n", strsignal(sinyalNo), sinyalNo);    
 }
 
 int main()
