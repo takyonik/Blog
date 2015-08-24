@@ -37,7 +37,7 @@ int main()
     printf("%s(%c) sinyali kaydediliyor\n", strsignal(sinyalNo), sinyalNo);
     if(signal(sinyalNo, &SinyalYakalandiginda) == SIG_ERR)
     {
-        perror("Hata! %s(%c) sinyali için bir yakalayıcı belirleyemedik\n");
+        printf("Hata! %s(%c) sinyali için bir yakalayıcı belirleyemedik\n",strsignal(sinyalNo), sinyalNo);
         exit(EXIT_FAILURE);
     }
     printf("%s(%d) sinyali başarıyla kaydedildi\n", strsignal(sinyalNo), sinyalNo);
